@@ -1,0 +1,109 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.example</groupId>
+  <artifactId>serenity_ui_api</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>serenity_ui_api</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <selenide.version>7.14.0</selenide.version>
+    <serenity.version>5.2.2</serenity.version>
+  </properties>
+
+  <dependencies>
+    <!-- Source: https://mvnrepository.com/artifact/net.serenity-bdd/serenity-core -->
+    <dependency>
+      <groupId>net.serenity-bdd</groupId>
+      <artifactId>serenity-core</artifactId>
+      <version>${serenity.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <!-- Source: https://mvnrepository.com/artifact/net.serenity-bdd/serenity-rest-assured -->
+    <dependency>
+      <groupId>net.serenity-bdd</groupId>
+      <artifactId>serenity-rest-assured</artifactId>
+      <version>${serenity.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <!-- Source: https://mvnrepository.com/artifact/net.serenity-bdd/serenity-junit5 -->
+    <dependency>
+      <groupId>net.serenity-bdd</groupId>
+      <artifactId>serenity-junit5</artifactId>
+      <version>${serenity.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <environment>qa</environment>
+      </properties>
+    </profile>
+  </profiles>
+  <build>
+  <plugins>
+    <plugin>
+      <groupId>net.serenity-bdd.maven.plugins</groupId>
+      <artifactId>serenity-maven-plugin</artifactId>
+      <version>${serenity.version}</version>
+      <configuration>
+      </configuration>
+      <executions>
+        <execution>
+          <id>serenity-reports</id>
+          <phase>post-integration-test</phase>
+          <goals>
+            <goal>aggregate</goal>
+            <goal>check</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>3.11.0</version>
+      <configuration>
+        <source>17</source>
+        <target>17</target>
+      </configuration>
+    </plugin>
+    <!-- Maven Surefire Plugin for running unit/integration tests -->
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-surefire-plugin</artifactId>
+      <version>3.1.2</version>
+      <configuration>
+        <!-- Pass the Maven profile environment to Serenity -->
+        <systemPropertyVariables>
+          <environment>${environment}</environment>
+        </systemPropertyVariables>
+      </configuration>
+    </plugin>
+    <plugin>
+      <groupId>net.serenity-bdd.maven.plugins</groupId>
+      <artifactId>serenity-maven-plugin</artifactId>
+      <version>${serenity.version}</version>
+      <executions>
+        <execution>
+          <id>serenity-reports</id>
+          <phase>post-integration-test</phase>
+          <goals>
+            <goal>aggregate</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+  </build>
+</project>
