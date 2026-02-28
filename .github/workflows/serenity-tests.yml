@@ -1,0 +1,66 @@
+name: Serenity UI API Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # -----------------------------
+      # Java Setup
+      # -----------------------------
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+
+      # -----------------------------
+      # Install Chrome
+      # -----------------------------
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Verify Chrome
+        run: google-chrome --version
+
+      # -----------------------------
+      # Maven Build
+      # -----------------------------
+      - name: Run Serenity Tests
+        run: |
+          mvn clean verify \
+          -Denvironment=qa \
+          -Dwebdriver.driver=chrome \
+          -Dheadless.mode=true
+
+      # -----------------------------
+      # Generate Serenity Report
+      # -----------------------------
+      - name: Generate Serenity Report
+        run: mvn serenity:aggregate
+
+      # -----------------------------
+      # Upload Report
+      # -----------------------------
+      - name: Upload Serenity Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: serenity-report
+          path: target/site/serenity
