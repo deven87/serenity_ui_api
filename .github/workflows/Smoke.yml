@@ -12,7 +12,11 @@ permissions:
   id-token: write
 
 jobs:
-  smoke-tests:
+
+  # ==========================
+  # BUILD + TEST JOB
+  # ==========================
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -33,44 +37,43 @@ jobs:
           restore-keys: |
             maven-${{ runner.os }}
 
-      # ✅ Run Smoke Tests
+      # Run Smoke Tests
       - name: Run Smoke Tests
-        run: |
-          mvn clean verify -Dtags="smoke"
+        run: mvn clean verify -Dtags="smoke"
 
-      # ✅ Generate Serenity Report
+      # Generate Serenity Report
       - name: Generate Serenity Report
         run: mvn serenity:aggregate
 
-      # ✅ Print Report Location in Logs
+      # Print Report Path
       - name: Print Report Location
         run: |
-          echo "======================================"
-          echo "Serenity Report Generated At:"
+          echo "Serenity Report:"
           echo "${{ github.workspace }}/target/site/serenity/index.html"
-          echo ""
-          echo "Local Runner URL Preview:"
-          echo "file://${{ github.workspace }}/target/site/serenity/index.html"
-          echo "======================================"
 
-      # ✅ Upload Artifact (Downloadable)
-      - name: Upload Serenity Report Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: serenity-report
-          path: target/site/serenity/
-
-      # ✅ Setup Pages
-      - name: Setup GitHub Pages
-        uses: actions/configure-pages@v5
-
-      # ✅ Upload Pages Artifact
+      # Upload Pages Artifact
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: target/site/serenity/
 
-      # ✅ Deploy to GitHub Pages
+
+  # ==========================
+  # DEPLOY JOB (IMPORTANT)
+  # ==========================
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
